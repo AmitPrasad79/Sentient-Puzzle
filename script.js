@@ -26,9 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let selected = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
-  const imagePathPrefix = "images/"; // change to "" if your images are in the root folder
+  const imagePathPrefix = "images/"; // your folder name
 
-  // Mode buttons
+  // Mode selection
   modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       modeBtns.forEach((b) => b.classList.remove("active"));
@@ -38,12 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Pick random image
+  // Pick a random image
   function pickRandomImage() {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
-  // Countdown + preview → start game
+  // Start sequence
   startBtn.addEventListener("click", () => {
     pickRandomImage();
     menu.classList.remove("active");
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         previewBox.classList.remove("hidden");
         previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-        // Wait 3 seconds on preview, then start puzzle
+        // Wait 3 seconds then start game
         setTimeout(() => {
           overlay.classList.add("hidden");
           previewBox.classList.add("hidden");
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
-  // Build and show puzzle
+  // Create puzzle
   function startPuzzle() {
     game.classList.remove("hidden");
     puzzle.innerHTML = "";
@@ -99,18 +99,18 @@ document.addEventListener("DOMContentLoaded", () => {
       div.classList.add("tile");
       div.dataset.correct = i;
 
-      // background positioning
-      const col = i % gridSize;
-      const row = Math.floor(i / gridSize);
+      const x = i % gridSize;
+      const y = Math.floor(i / gridSize);
       div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
       div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
-      div.style.backgroundPosition = `${(col / (gridSize - 1)) * 100}% ${(row / (gridSize - 1)) * 100}%`;
+      div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
 
-      div.addEventListener("click", () => handleTileClick(i));
+      div.addEventListener("click", () => onTileClick(i));
       tiles.push({ el: div, correctIndex: i });
     }
   }
 
+  // Randomize tiles
   function shuffleTiles() {
     for (let i = tiles.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -118,15 +118,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Render to DOM
   function renderTiles() {
     puzzle.innerHTML = "";
-    tiles.forEach((tile, i) => {
-      puzzle.appendChild(tile.el);
-    });
+    tiles.forEach((t) => puzzle.appendChild(t.el));
   }
 
-  // Handle tile click (swap)
-  function handleTileClick(correctIndex) {
+  // Swap tiles
+  function onTileClick(correctIndex) {
     const currentPos = tiles.findIndex((t) => t.correctIndex === correctIndex);
 
     if (selected === null) {
@@ -156,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Adjacency check
   function isAdjacent(a, b) {
     const ax = a % gridSize, ay = Math.floor(a / gridSize);
     const bx = b % gridSize, by = Math.floor(b / gridSize);

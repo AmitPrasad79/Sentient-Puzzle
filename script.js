@@ -242,4 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ensure start button keyboard accessibility
   startBtn.addEventListener('keyup', (e) => { if (e.key === 'Enter') startBtn.click(); });
 
-  // small safety: if image files mis
+  // small safety: if image files missing, show a colored placeholder on error for each tile
+  // add an image preload for current image to avoid black tiles—if fails, we set tile background to gradient
+  // handled by CSS fallback (browser will show nothing) — but we add onerror on preview to continue.
+
+  // initial no-op build so developer can inspect DOM (not shown to user)
+});

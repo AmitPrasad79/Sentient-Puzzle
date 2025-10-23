@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Elements
   const menu = document.getElementById("menu");
   const startBtn = document.getElementById("start-btn");
   const modeBtns = document.querySelectorAll(".mode-btn");
@@ -18,16 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const winMain = document.getElementById("win-main");
   const winRestart = document.getElementById("win-restart");
 
+  // State
   let gridSize = 3;
   let tiles = [];
   let moveCount = 0;
   let selected = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
+  const imagePathPrefix = "images/"; // images/img1.png, etc.
 
-  // 👇 set this according to your actual folder
-  const imagePathPrefix = "images/"; // "" if in root, "img/" or "images/" if folder
-
+  // Mode buttons
   modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       modeBtns.forEach((b) => b.classList.remove("active"));
@@ -37,10 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Pick random image
   function pickRandomImage() {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
+  // Countdown + preview → start game
   startBtn.addEventListener("click", () => {
     pickRandomImage();
     menu.classList.remove("active");
@@ -61,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         previewBox.classList.remove("hidden");
         previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
+        // Wait 3 seconds on preview, then start puzzle
         setTimeout(() => {
           overlay.classList.add("hidden");
           previewBox.classList.add("hidden");
@@ -70,14 +74,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
+  // Build and show puzzle
   function startPuzzle() {
-    console.log("Starting puzzle with image:", `${imagePathPrefix}img${currentImage}.png`);
-    menu.classList.add("hidden");
     game.classList.remove("hidden");
-    game.style.display = "block";
+    document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
     puzzle.innerHTML = "";
     moveCount = 0;
     updateMoves();
+
     buildTiles();
     shuffleTiles();
     renderTiles();
@@ -101,10 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
       div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
       div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
       div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
-      div.addEventListener("click", () => onTileClick(i));
+
+      div.addEventListener("click", () => handleTileClick(i));
       tiles.push({ el: div, correctIndex: i });
     }
-    console.log("Built", tiles.length, "tiles for grid", gridSize);
   }
 
   function shuffleTiles() {
@@ -116,10 +120,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderTiles() {
     puzzle.innerHTML = "";
-    tiles.forEach((t) => puzzle.appendChild(t.el));
+    tiles.forEach((tile) => {
+      puzzle.appendChild(tile.el);
+    });
   }
 
-  function onTileClick(correctIndex) {
+  // Handle tile click (swap)
+  function handleTileClick(correctIndex) {
     const currentPos = tiles.findIndex((t) => t.correctIndex === correctIndex);
 
     if (selected === null) {
@@ -140,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateMoves();
       renderTiles();
       selected = null;
+
       if (checkWin()) showWin();
     } else {
       tiles[selected].el.classList.remove("selected");
@@ -168,28 +176,33 @@ document.addEventListener("DOMContentLoaded", () => {
     winImg.src = `${imagePathPrefix}img${currentImage}.png`;
   }
 
+  // Buttons
   resetBtn.addEventListener("click", startPuzzle);
+
   menuBtn.addEventListener("click", () => {
     game.classList.add("hidden");
+    winPopup.classList.add("hidden");
+    overlay.classList.add("hidden");
+    previewBox.classList.add("hidden");
+    countdownBox.classList.add("hidden");
+
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     menu.classList.add("active");
+
     startBtn.disabled = true;
     modeBtns.forEach((b) => b.classList.remove("active"));
   });
+
   winMain.addEventListener("click", () => {
     winPopup.classList.add("hidden");
     game.classList.add("hidden");
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     menu.classList.add("active");
   });
+
   winRestart.addEventListener("click", () => {
     winPopup.classList.add("hidden");
     pickRandomImage();
     startPuzzle();
   });
 });
-
-
-
-
-
-
-

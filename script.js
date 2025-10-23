@@ -41,57 +41,69 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Start flow: countdown -> preview -> puzzle
-  startBtn.addEventListener("click", () => {
-    pickRandomImage();
-    menu.classList.remove("active");
-    overlay.classList.remove("hidden");
-    countdownBox.classList.remove("hidden");
-    previewBox.classList.add("hidden");
+// Start flow: countdown -> preview -> puzzle
+startBtn.addEventListener("click", () => {
+  pickRandomImage();
 
-    let count = 3;
-    countNum.textContent = count;
+  // show overlay & countdown (start state)
+  overlay.classList.remove("hidden");
+  countdownBox.classList.remove("hidden");
+  previewBox.classList.add("hidden");
+  // ensure menu is hidden
+  menu.classList.remove("active");
 
-    const timer = setInterval(() => {
-      count--;
-      if (count > 0) {
-        countNum.textContent = count;
-      } else {
-        clearInterval(timer);
-        countdownBox.classList.add("hidden");
-        previewBox.classList.remove("hidden");
-        previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
+  // start countdown
+  let count = 3;
+  countNum.textContent = count;
+  const timer = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countNum.textContent = count;
+    } else {
+      clearInterval(timer);
+      // show preview image for 3 seconds
+      countdownBox.classList.add("hidden");
+      previewBox.classList.remove("hidden");
+      previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-        setTimeout(() => {
-          overlay.classList.add("hidden");
-          previewBox.classList.add("hidden");
-          startPuzzle();
-        }, 3000);
-      }
-    }, 1000);
-  });
+      // after preview, prepare puzzle first THEN hide overlay
+      setTimeout(() => {
+        // build puzzle BEFORE removing overlay so the user doesn't see a blank / collapsed area
+        buildTiles();
+        shuffleTiles();
+        renderTiles();
 
- function startPuzzle() {
-  // Hide overlays completely and bring game to front
+        // ensure game is visible and above background canvas
+        game.classList.add("active");
+        game.style.zIndex = "5";
+
+        // hide overlay so user can interact
+        overlay.classList.add("hidden");
+        previewBox.classList.add("hidden");
+      }, 3000);
+    }
+  }, 1000);
+});
+
+function startPuzzle() {
+  // KEEP for keyboard/reset usage - also re-build safely
+  // bring the game forward
+  game.classList.add("active");
+  game.style.zIndex = "5";
   overlay.classList.add("hidden");
   previewBox.classList.add("hidden");
 
-  game.classList.add("active");
-  game.style.zIndex = "5"; // ensure above any fall.js canvas
-
-  // Build puzzle
-  puzzle.innerHTML = "";
-  puzzle.style.display = "grid";
-  puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-  puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-  puzzle.style.gap = "6px";
-
+  // reset move/selection state
   moveCount = 0;
   selectedTile = null;
   updateMoves();
+
+  // build + shuffle + render
   buildTiles();
   shuffleTiles();
   renderTiles();
 }
+
 
   // Build tiles in correct order (correctIndex = target position)
   function buildTiles() {
@@ -240,6 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
  });
 
 });
+
 
 
 

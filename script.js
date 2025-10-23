@@ -70,16 +70,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
-  function startPuzzle() {
-    game.classList.add("active");
-    puzzle.innerHTML = "";
-    moveCount = 0;
-    selectedTile = null;
-    updateMoves();
-    buildTiles();
-    shuffleTiles();
-    renderTiles();
-  }
+ function startPuzzle() {
+  // Hide overlays completely and bring game to front
+  overlay.classList.add("hidden");
+  previewBox.classList.add("hidden");
+
+  game.classList.add("active");
+  game.style.zIndex = "5"; // ensure above any fall.js canvas
+
+  // Build puzzle
+  puzzle.innerHTML = "";
+  puzzle.style.display = "grid";
+  puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+  puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+  puzzle.style.gap = "6px";
+
+  moveCount = 0;
+  selectedTile = null;
+  updateMoves();
+  buildTiles();
+  shuffleTiles();
+  renderTiles();
+}
 
   // Build tiles in correct order (correctIndex = target position)
   function buildTiles() {
@@ -228,5 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
  });
 
 });
+
 
 

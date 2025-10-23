@@ -92,9 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const y = Math.floor(i / gridSize);
       el.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
       el.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
-      div.style.width = `${100 / gridSize}%`;
-      div.style.height = `${100 / gridSize}%`;
-
+      el.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
       // Keep the original/correct index on the object
       tiles.push({ el, correctIndex: i });
     }

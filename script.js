@@ -1,5 +1,3 @@
-// Sentient Puzzle Slide+ (swap puzzle, no empty tile)
-// Works with images/img1.png ... images/img18.png
 document.addEventListener('DOMContentLoaded', () => {
   // DOM refs
   const menu = document.getElementById('menu');
@@ -14,10 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const game = document.getElementById('game');
   const puzzle = document.getElementById('puzzle');
-  const puzzleBox = document.getElementById('puzzle-box');
   const resetBtn = document.getElementById('reset-btn');
   const menuBtn = document.getElementById('menu-btn');
-
   const movesDisplay = document.getElementById('moves');
 
   const winPopup = document.getElementById('win');
@@ -28,13 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // state
   let gridSize = 3;
-  let tiles = []; // array of {el, correctIndex}
+  let tiles = [];
   let moveCount = 0;
   let selected = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
 
-  // enable start once a mode is chosen
+  // select mode
   modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       modeBtns.forEach(b => b.classList.remove('active'));
@@ -44,16 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // helper: pick random image index
   function pickRandomImage() {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
-  // Start flow: countdown -> preview -> show puzzle
+  // Start game flow
   startBtn.addEventListener('click', () => {
-    // pick image first
     pickRandomImage();
-    // show overlay countdown
+    menu.classList.remove('active');   // hide menu properly
     overlay.classList.remove('hidden');
     countdownBox.classList.remove('hidden');
     previewBox.classList.add('hidden');
@@ -66,63 +60,56 @@ document.addEventListener('DOMContentLoaded', () => {
         countNum.textContent = String(c);
       } else {
         clearInterval(ct);
-        // show preview (full image) for 3s
         countdownBox.classList.add('hidden');
         previewBox.classList.remove('hidden');
         previewImg.src = `images/img${currentImage}.png`;
-        // ensure image loads before starting timer
         previewImg.onload = () => {
           setTimeout(() => {
             overlay.classList.add('hidden');
             previewBox.classList.add('hidden');
-            beginGame();
+            startPuzzle();
           }, 3000);
         };
-        // if image fails to load (404), still continue after 3s with fallback color
         previewImg.onerror = () => {
           setTimeout(() => {
             overlay.classList.add('hidden');
             previewBox.classList.add('hidden');
-            beginGame();
+            startPuzzle();
           }, 3000);
         };
       }
     }, 1000);
   });
 
-  function beginGame() {
-    // show game screen
-    menu.classList.add('hidden');
+  function startPuzzle() {
     game.classList.remove('hidden');
-    winPopup.classList.add('hidden');
     selected = null;
     moveCount = 0;
     updateMoves();
-
     buildTiles();
     shuffleTiles();
     renderTiles();
   }
 
-  // build tiles in correct order (gridSize x gridSize)
+  // build grid tiles
   function buildTiles() {
     tiles = [];
     const total = gridSize * gridSize;
-    // set puzzle grid template
     puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
     for (let i = 0; i < total; i++) {
       const el = document.createElement('div');
       el.className = 'tile';
-      el.dataset.correct = i; // solved position
-      // compute background slice
+      el.dataset.correct = i;
+
       const x = i % gridSize;
       const y = Math.floor(i / gridSize);
       el.style.backgroundImage = `url('images/img${currentImage}.png')`;
       el.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
       el.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
       el.addEventListener('click', () => onTileClick(i));
+
       tiles.push({ el, correctIndex: i });
     }
   }
@@ -130,13 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderTiles() {
     puzzle.innerHTML = '';
     tiles.forEach((t, idx) => {
-      // store current position index on element for adjacency checks
       t.el.dataset.position = idx;
       puzzle.appendChild(t.el);
     });
   }
 
-  // Shuffle: Fisher-Yates on tiles array
   function shuffleTiles() {
     for (let i = tiles.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -144,38 +129,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // click handler: select or attempt swap
-  function onTileClick(positionIndex) {
-    // positionIndex is the original index when built — but tiles array order is current layout.
-    // We map by dataset.position in render, so find index of clicked tile in tiles array:
-    const clickedIndex = parseInt(tiles.findIndex(t => parseInt(t.el.dataset.position, 10) === positionIndex), 10);
-    // However simpler: event closure above passed i fixed at build time; after shuffle, dataset.position is correct.
-    // So instead, find element by position attribute:
-    const el = tiles.find(t => parseInt(t.el.dataset.position, 10) === positionIndex).el;
-    const currentPos = Array.prototype.indexOf.call(puzzle.children, el);
+  function onTileClick(pos) {
+    const currentPos = Array.from(puzzle.children).findIndex(
+      el => parseInt(el.dataset.position) === pos
+    );
 
     if (selected === null) {
-      // select this tile
       selected = currentPos;
-      tiles[currentPos].el.classList.add('selected');
+      tiles[selected].el.classList.add('selected');
     } else if (selected === currentPos) {
-      // deselect
       tiles[selected].el.classList.remove('selected');
       selected = null;
     } else {
-      // attempt swap if adjacent
       if (isAdjacent(selected, currentPos)) {
-        // swap elements in tiles array at indices selected and currentPos
         [tiles[selected], tiles[currentPos]] = [tiles[currentPos], tiles[selected]];
-        // re-render
         renderTiles();
         moveCount++;
         updateMoves();
         selected = null;
-        // check win
         if (checkWin()) showWin();
       } else {
-        // if not adjacent, switch selection to the new tile
         tiles[selected].el.classList.remove('selected');
         selected = currentPos;
         tiles[selected].el.classList.add('selected');
@@ -183,13 +156,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // adjacency check in the grid (using indices in tiles array => positions on board)
-  function isAdjacent(aIndex, bIndex) {
-    // compute coordinates row/col for index on current layout: index -> row = floor(index / gridSize)
-    const ax = aIndex % gridSize, ay = Math.floor(aIndex / gridSize);
-    const bx = bIndex % gridSize, by = Math.floor(bIndex / gridSize);
-    const dist = Math.abs(ax - bx) + Math.abs(ay - by);
-    return dist === 1; // Manhattan distance 1
+  function isAdjacent(a, b) {
+    const ax = a % gridSize, ay = Math.floor(a / gridSize);
+    const bx = b % gridSize, by = Math.floor(b / gridSize);
+    return Math.abs(ax - bx) + Math.abs(ay - by) === 1;
   }
 
   function updateMoves() {
@@ -197,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkWin() {
-    // solved when for each position idx, the tile at tiles[idx].correctIndex === idx
     return tiles.every((t, idx) => t.correctIndex === idx);
   }
 
@@ -207,44 +176,23 @@ document.addEventListener('DOMContentLoaded', () => {
     winPopup.classList.remove('hidden');
   }
 
-  // buttons
-  resetBtn.addEventListener('click', () => {
-    selected = null;
-    moveCount = 0;
-    updateMoves();
-    buildTiles();
-    shuffleTiles();
-    renderTiles();
-  });
-
+  resetBtn.addEventListener('click', startPuzzle);
   menuBtn.addEventListener('click', () => {
-    // back to menu
     game.classList.add('hidden');
-    menu.classList.remove('hidden');
-    // reset start button disabled state: only enabled when a mode chosen
+    menu.classList.add('active');
     startBtn.disabled = true;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    modeBtns.forEach(b => b.classList.remove('active'));
   });
 
   winMain.addEventListener('click', () => {
     winPopup.classList.add('hidden');
     game.classList.add('hidden');
-    menu.classList.remove('hidden');
+    menu.classList.add('active');
   });
 
   winRestart.addEventListener('click', () => {
     winPopup.classList.add('hidden');
-    // start another round with same difficulty (pick new image)
     pickRandomImage();
-    beginGame();
+    startPuzzle();
   });
-
-  // ensure start button keyboard accessibility
-  startBtn.addEventListener('keyup', (e) => { if (e.key === 'Enter') startBtn.click(); });
-
-  // small safety: if image files missing, show a colored placeholder on error for each tile
-  // add an image preload for current image to avoid black tiles—if fails, we set tile background to gradient
-  // handled by CSS fallback (browser will show nothing) — but we add onerror on preview to continue.
-
-  // initial no-op build so developer can inspect DOM (not shown to user)
 });

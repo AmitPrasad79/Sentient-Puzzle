@@ -98,10 +98,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const x = i % gridSize;
       const y = Math.floor(i / gridSize);
-      div.style.backgroundColor = "#0ff2"; // debug color so you can see them
       div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
       div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
-      div.style.backgroundPosition = `${(col * 100) / (gridSize - 1)}% ${(row * 100) / (gridSize - 1)}%`;
+      div.style.backgroundPosition = `${(col / (gridSize - 1)) * 100}% ${(row / (gridSize - 1)) * 100}%`;
       div.addEventListener("click", () => onTileClick(i));
       tiles.push({ el: div, correctIndex: i });
     }
@@ -187,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startPuzzle();
   });
 });
+
 
 
 

@@ -194,3 +194,22 @@ main {
     font-size: 0.9rem;
   }
 }
+
+.hidden {
+  display: none !important;
+  pointer-events: none;
+}
+
+#menu {
+  z-index: 5;
+  pointer-events: all;
+}
+#countdown.hidden,
+#game.hidden,
+.popup.hidden {
+  display: none !important;
+  pointer-events: none;
+}
+
+
+

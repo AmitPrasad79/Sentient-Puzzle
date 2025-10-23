@@ -1,188 +1,174 @@
-// Sentient Puzzle Slide+
-// ----------------------
-
-const menuScreen = document.getElementById("menu");
-const gameScreen = document.getElementById("game");
-const overlay = document.getElementById("overlay");
-const previewBox = document.getElementById("preview");
-const countdownBox = document.getElementById("countdown");
-const countNum = document.getElementById("count-num");
-const puzzleContainer = document.getElementById("puzzle");
-const startBtn = document.getElementById("start-btn");
-const moveDisplay = document.getElementById("moves");
-const winPopup = document.getElementById("win");
-const winImg = document.getElementById("win-img");
-const winText = document.getElementById("win-text");
-const winMainBtn = document.getElementById("win-main");
-const winRestartBtn = document.getElementById("win-restart");
-const menuBtn = document.getElementById("menu-btn");
-const resetBtn = document.getElementById("reset-btn");
-
-let gridSize = 3;
-let moves = 0;
-let tiles = [];
-let emptyIndex;
-let currentImage = 1;
-
-const imagePathPrefix = "./images/";
-
-// ----------------------
-// MENU
-// ----------------------
-document.querySelectorAll(".mode-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    gridSize = parseInt(btn.dataset.size);
-    startBtn.disabled = false;
-  });
-});
-
-startBtn.addEventListener("click", startGame);
-
-function startGame() {
-  menuScreen.classList.remove("active");
-  overlay.classList.remove("hidden");
-  previewBox.classList.remove("hidden");
-
+document.addEventListener("DOMContentLoaded", () => {
+  // Elements
+  const menu = document.getElementById("menu");
+  const startBtn = document.getElementById("start-btn");
+  const modeBtns = document.querySelectorAll(".mode-btn");
+  const overlay = document.getElementById("overlay");
+  const countdownBox = document.getElementById("countdown");
+  const countNum = document.getElementById("count-num");
+  const previewBox = document.getElementById("preview");
   const previewImg = document.getElementById("preview-img");
-  previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
+  const game = document.getElementById("game");
+  const puzzle = document.getElementById("puzzle");
+  const movesDisplay = document.getElementById("moves");
+  const resetBtn = document.getElementById("reset-btn");
+  const menuBtn = document.getElementById("menu-btn");
+  const winPopup = document.getElementById("win");
+  const winText = document.getElementById("win-text");
+  const winImg = document.getElementById("win-img");
+  const winMain = document.getElementById("win-main");
+  const winRestart = document.getElementById("win-restart");
 
-  setTimeout(() => {
-    previewBox.classList.add("hidden");
+  // State
+  let gridSize = 3;
+  let tiles = [];
+  let moveCount = 0;
+  let selected = null;
+  let currentImage = 1;
+  const IMAGE_COUNT = 18;
+  const imagePathPrefix = "images/";
+
+  // Select difficulty
+  modeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      modeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      gridSize = parseInt(btn.dataset.size);
+      startBtn.disabled = false;
+    });
+  });
+
+  // Pick random image
+  function pickRandomImage() {
+    currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
+  }
+
+  // Start button
+  startBtn.addEventListener("click", () => {
+    pickRandomImage();
+    menu.classList.remove("active");
+    overlay.classList.remove("hidden");
     countdownBox.classList.remove("hidden");
+    previewBox.classList.add("hidden");
 
-    let countdown = 3;
-    countNum.textContent = countdown;
+    let count = 3;
+    countNum.textContent = count;
 
     const timer = setInterval(() => {
-      countdown--;
-      countNum.textContent = countdown;
-      if (countdown === 0) {
+      count--;
+      if (count > 0) {
+        countNum.textContent = count;
+      } else {
         clearInterval(timer);
-        overlay.classList.add("hidden");
         countdownBox.classList.add("hidden");
-        showGame();
+        previewBox.classList.remove("hidden");
+        previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
+
+        // Show preview 3s then start puzzle
+        setTimeout(() => {
+          overlay.classList.add("hidden");
+          previewBox.classList.add("hidden");
+          startPuzzle();
+        }, 3000);
       }
     }, 1000);
-  }, 3000);
-}
-
-// ----------------------
-// GAME LOGIC
-// ----------------------
-
-function showGame() {
-  gameScreen.classList.add("active");
-  buildPuzzle();
-}
-
-function buildPuzzle() {
-  puzzleContainer.innerHTML = "";
-  puzzleContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-  puzzleContainer.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-
-  const positions = [];
-  for (let y = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize; x++) {
-      positions.push({ x, y });
-    }
-  }
-
-  emptyIndex = positions.length - 1;
-  tiles = [];
-
-  positions.forEach((pos, i) => {
-    const div = document.createElement("div");
-    if (i !== emptyIndex) {
-      div.className = "tile";
-      div.style.backgroundImage = `url(${imagePathPrefix}img${currentImage}.png)`;
-      div.style.backgroundSize = `${gridSize * 100}%`;
-      div.style.backgroundPosition = `${(pos.x / (gridSize - 1)) * 100}% ${(pos.y / (gridSize - 1)) * 100}%`;
-      div.dataset.correctIndex = i;
-      div.addEventListener("click", () => moveTile(i));
-    }
-    puzzleContainer.appendChild(div);
-    tiles.push(div);
   });
 
-  shufflePuzzle();
-  moves = 0;
-  moveDisplay.textContent = `Moves: ${moves}`;
-}
+  // Create puzzle
+  function startPuzzle() {
+    game.classList.add("active");
+    puzzle.innerHTML = "";
+    moveCount = 0;
+    updateMoves();
 
-function shufflePuzzle() {
-  for (let i = 0; i < 300; i++) {
-    const neighbors = getNeighbors(emptyIndex);
-    const rand = neighbors[Math.floor(Math.random() * neighbors.length)];
-    swapTiles(emptyIndex, rand);
-    emptyIndex = rand;
+    buildTiles();
+    shuffleTiles();
+    renderTiles();
   }
-}
 
-function getNeighbors(index) {
-  const neighbors = [];
-  const row = Math.floor(index / gridSize);
-  const col = index % gridSize;
-  if (row > 0) neighbors.push(index - gridSize);
-  if (row < gridSize - 1) neighbors.push(index + gridSize);
-  if (col > 0) neighbors.push(index - 1);
-  if (col < gridSize - 1) neighbors.push(index + 1);
-  return neighbors;
-}
+  function buildTiles() {
+    tiles = [];
+    const total = gridSize * gridSize;
+    puzzle.style.display = "grid";
+    puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+    puzzle.style.gap = "6px";
 
-function moveTile(index) {
-  const neighbors = getNeighbors(emptyIndex);
-  if (neighbors.includes(index)) {
-    swapTiles(index, emptyIndex);
-    emptyIndex = index;
-    moves++;
-    moveDisplay.textContent = `Moves: ${moves}`;
-    checkWin();
+    for (let i = 0; i < total; i++) {
+      const div = document.createElement("div");
+      div.classList.add("tile");
+      div.dataset.correct = i;
+
+      const x = i % gridSize;
+      const y = Math.floor(i / gridSize);
+      div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
+      div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
+      div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
+
+      div.addEventListener("click", () => handleTileClick(i));
+      tiles.push({ el: div, correctIndex: i });
+    }
   }
-}
 
-function swapTiles(i1, i2) {
-  const temp = tiles[i1];
-  tiles[i1] = tiles[i2];
-  tiles[i2] = temp;
-
-  puzzleContainer.innerHTML = "";
-  tiles.forEach((tile) => puzzleContainer.appendChild(tile));
-}
-
-function checkWin() {
-  for (let i = 0; i < tiles.length - 1; i++) {
-    if (!tiles[i]) continue;
-    if (parseInt(tiles[i].dataset.correctIndex) !== i) return;
+  function shuffleTiles() {
+    for (let i = tiles.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
   }
-  showWin();
-}
 
-function showWin() {
-  gameScreen.classList.remove("active");
-  winPopup.classList.remove("hidden");
-  winImg.src = `${imagePathPrefix}img${currentImage}.png`;
-  winText.textContent = `You solved it in ${moves} moves!`;
-}
+  function renderTiles() {
+    puzzle.innerHTML = "";
+    tiles.forEach((tile) => puzzle.appendChild(tile.el));
+  }
 
-// ----------------------
-// BUTTONS
-// ----------------------
+  // Click handling: swap two tiles (not sliding)
+  function handleTileClick(index) {
+    if (selected === null) {
+      selected = index;
+      tiles[selected].el.classList.add("selected");
+    } else if (selected === index) {
+      tiles[selected].el.classList.remove("selected");
+      selected = null;
+    } else {
+      [tiles[selected], tiles[index]] = [tiles[index], tiles[selected]];
+      moveCount++;
+      updateMoves();
+      renderTiles();
+      selected = null;
+      if (checkWin()) showWin();
+    }
+  }
 
-menuBtn.addEventListener("click", () => {
-  gameScreen.classList.remove("active");
-  menuScreen.classList.add("active");
-});
+  function updateMoves() {
+    movesDisplay.textContent = `Moves: ${moveCount}`;
+  }
 
-resetBtn.addEventListener("click", buildPuzzle);
+  function checkWin() {
+    return tiles.every((t, i) => t.correctIndex === i);
+  }
 
-winMainBtn.addEventListener("click", () => {
-  winPopup.classList.add("hidden");
-  menuScreen.classList.add("active");
-});
+  function showWin() {
+    winPopup.classList.remove("hidden");
+    winText.textContent = `🎉 You solved it in ${moveCount} moves!`;
+    winImg.src = `${imagePathPrefix}img${currentImage}.png`;
+  }
 
-winRestartBtn.addEventListener("click", () => {
-  winPopup.classList.add("hidden");
-  buildPuzzle();
+  // Buttons
+  resetBtn.addEventListener("click", startPuzzle);
+  menuBtn.addEventListener("click", () => {
+    game.classList.remove("active");
+    menu.classList.add("active");
+    startBtn.disabled = true;
+    modeBtns.forEach((b) => b.classList.remove("active"));
+  });
+  winMain.addEventListener("click", () => {
+    winPopup.classList.add("hidden");
+    game.classList.remove("active");
+    menu.classList.add("active");
+  });
+  winRestart.addEventListener("click", () => {
+    winPopup.classList.add("hidden");
+    startPuzzle();
+  });
 });

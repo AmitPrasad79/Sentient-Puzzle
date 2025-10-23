@@ -141,6 +141,55 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   pointer-events: none;
 }
 
+/* Outer box around everything */
+.game-container {
+  position: relative;
+  z-index: 1; /* ensure above bgCanvas */
+  width: 90%;
+  max-width: 900px;
+  margin: 60px auto;
+  background: rgba(20, 20, 20, 0.85);
+  border: 2px solid #ff66a3;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255, 102, 163, 0.4);
+  padding: 30px;
+  backdrop-filter: blur(6px);
+}
+
+/* Keep everything inside aligned neatly */
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Optional: make title pop */
+.title {
+  color: #fff;
+  text-shadow: 0 0 8px #ff66a3;
+}
+
+/* Ensure footer stays outside box but centered */
+#footer {
+  position: fixed;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #aaa;
+  z-index: 2;
+}
+
+#footer a {
+  color: #ff66a3;
+  text-decoration: none;
+}
+
+#footer a:hover {
+  text-decoration: underline;
+}
+
 
 
 

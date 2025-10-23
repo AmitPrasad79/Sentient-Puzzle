@@ -96,3 +96,7 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   max-width: 800px;
   margin: auto;
 }
+
+.hidden {
+  display: none !important;
+}

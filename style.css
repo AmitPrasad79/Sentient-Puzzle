@@ -97,6 +97,10 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   margin: auto;
 }
 
+.hidden {
+  display: none !important;
+}
+
 
 
 

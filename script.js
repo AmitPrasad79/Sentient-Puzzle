@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // DOM elements
+  // Elements
   const menu = document.getElementById("menu");
   const startBtn = document.getElementById("start-btn");
   const modeBtns = document.querySelectorAll(".mode-btn");
@@ -27,22 +27,20 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentImage = 1;
   const IMAGE_COUNT = 18;
 
-  // Select mode
-  modeBtns.forEach((btn) => {
+  // Mode selection
+  modeBtns.forEach(btn => {
     btn.addEventListener("click", () => {
-      modeBtns.forEach((b) => b.classList.remove("active"));
+      modeBtns.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       gridSize = parseInt(btn.dataset.size);
       startBtn.disabled = false;
     });
   });
 
-  // Pick random image
   function pickRandomImage() {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
-  // Start button logic
   startBtn.addEventListener("click", () => {
     pickRandomImage();
     menu.classList.remove("active");
@@ -52,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let count = 3;
     countNum.textContent = count;
+
     const timer = setInterval(() => {
       count--;
       if (count > 0) {
@@ -62,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         previewBox.classList.remove("hidden");
         previewImg.src = `images/img${currentImage}.png`;
 
+        // wait 3 seconds showing preview
         setTimeout(() => {
           overlay.classList.add("hidden");
           previewBox.classList.add("hidden");
@@ -71,12 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
-  // Build puzzle grid
   function startPuzzle() {
     game.classList.remove("hidden");
     puzzle.innerHTML = "";
     moveCount = 0;
     updateMoves();
+
     buildTiles();
     shuffleTiles();
     renderTiles();
@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function buildTiles() {
     tiles = [];
     const total = gridSize * gridSize;
+
     puzzle.style.display = "grid";
     puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
@@ -93,12 +94,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const el = document.createElement("div");
       el.classList.add("tile");
       el.dataset.correct = i;
+
       const x = i % gridSize;
       const y = Math.floor(i / gridSize);
+
       el.style.backgroundImage = `url('images/img${currentImage}.png')`;
       el.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
       el.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
-      el.addEventListener("click", () => onTileClick(i));
+
+      el.addEventListener("click", () => handleTileClick(i));
+
       tiles.push({ el, correctIndex: i });
     }
   }
@@ -118,8 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function onTileClick(index) {
-    const currentPos = tiles.findIndex((t) => parseInt(t.el.dataset.correct) === index);
+  function handleTileClick(tileIndex) {
+    const currentPos = tiles.findIndex(t => t.correctIndex === tileIndex);
+
     if (selected === null) {
       selected = currentPos;
       tiles[selected].el.classList.add("selected");
@@ -138,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateMoves();
       renderTiles();
       selected = null;
+
       if (checkWin()) showWin();
     } else {
       tiles[selected].el.classList.remove("selected");
@@ -147,8 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function isAdjacent(a, b) {
-    const ax = a % gridSize, ay = Math.floor(a / gridSize);
-    const bx = b % gridSize, by = Math.floor(b / gridSize);
+    const ax = a % gridSize;
+    const ay = Math.floor(a / gridSize);
+    const bx = b % gridSize;
+    const by = Math.floor(b / gridSize);
     return Math.abs(ax - bx) + Math.abs(ay - by) === 1;
   }
 
@@ -172,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     game.classList.add("hidden");
     menu.classList.add("active");
     startBtn.disabled = true;
-    modeBtns.forEach((b) => b.classList.remove("active"));
+    modeBtns.forEach(b => b.classList.remove("active"));
   });
   winMain.addEventListener("click", () => {
     winPopup.classList.add("hidden");

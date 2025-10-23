@@ -19,28 +19,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const winMain = document.getElementById("win-main");
   const winRestart = document.getElementById("win-restart");
 
-  // Game state
+  // State
   let gridSize = 3;
   let tiles = [];
-  let selected = null;
   let moveCount = 0;
+  let selected = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
+  const imagePathPrefix = "images/"; // change to "" if your images are in the root folder
 
-  // Mode selection
-  modeBtns.forEach(btn => {
+  // Mode buttons
+  modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      modeBtns.forEach(b => b.classList.remove("active"));
+      modeBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       gridSize = parseInt(btn.dataset.size);
       startBtn.disabled = false;
     });
   });
 
+  // Pick random image
   function pickRandomImage() {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
+  // Countdown + preview → start game
   startBtn.addEventListener("click", () => {
     pickRandomImage();
     menu.classList.remove("active");
@@ -59,9 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(timer);
         countdownBox.classList.add("hidden");
         previewBox.classList.remove("hidden");
-        previewImg.src = `images/img${currentImage}.png`;
+        previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-        // wait 3 seconds showing preview
+        // Wait 3 seconds on preview, then start puzzle
         setTimeout(() => {
           overlay.classList.add("hidden");
           previewBox.classList.add("hidden");
@@ -71,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
+  // Build and show puzzle
   function startPuzzle() {
     game.classList.remove("hidden");
     puzzle.innerHTML = "";
@@ -85,26 +89,25 @@ document.addEventListener("DOMContentLoaded", () => {
   function buildTiles() {
     tiles = [];
     const total = gridSize * gridSize;
-
     puzzle.style.display = "grid";
     puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+    puzzle.style.gap = "6px";
 
     for (let i = 0; i < total; i++) {
-      const el = document.createElement("div");
-      el.classList.add("tile");
-      el.dataset.correct = i;
+      const div = document.createElement("div");
+      div.classList.add("tile");
+      div.dataset.correct = i;
 
-      const x = i % gridSize;
-      const y = Math.floor(i / gridSize);
+      // background positioning
+      const col = i % gridSize;
+      const row = Math.floor(i / gridSize);
+      div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
+      div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
+      div.style.backgroundPosition = `${(col / (gridSize - 1)) * 100}% ${(row / (gridSize - 1)) * 100}%`;
 
-      el.style.backgroundImage = `url('images/img${currentImage}.png')`;
-      el.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
-      el.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
-
-      el.addEventListener("click", () => handleTileClick(i));
-
-      tiles.push({ el, correctIndex: i });
+      div.addEventListener("click", () => handleTileClick(i));
+      tiles.push({ el: div, correctIndex: i });
     }
   }
 
@@ -117,14 +120,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderTiles() {
     puzzle.innerHTML = "";
-    tiles.forEach((tile, index) => {
-      tile.el.dataset.position = index;
+    tiles.forEach((tile, i) => {
       puzzle.appendChild(tile.el);
     });
   }
 
-  function handleTileClick(tileIndex) {
-    const currentPos = tiles.findIndex(t => t.correctIndex === tileIndex);
+  // Handle tile click (swap)
+  function handleTileClick(correctIndex) {
+    const currentPos = tiles.findIndex((t) => t.correctIndex === correctIndex);
 
     if (selected === null) {
       selected = currentPos;
@@ -154,10 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function isAdjacent(a, b) {
-    const ax = a % gridSize;
-    const ay = Math.floor(a / gridSize);
-    const bx = b % gridSize;
-    const by = Math.floor(b / gridSize);
+    const ax = a % gridSize, ay = Math.floor(a / gridSize);
+    const bx = b % gridSize, by = Math.floor(b / gridSize);
     return Math.abs(ax - bx) + Math.abs(ay - by) === 1;
   }
 
@@ -166,13 +167,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function checkWin() {
-    return tiles.every((t, idx) => t.correctIndex === idx);
+    return tiles.every((t, i) => t.correctIndex === i);
   }
 
   function showWin() {
     winPopup.classList.remove("hidden");
     winText.textContent = `🎉 You solved it in ${moveCount} moves!`;
-    winImg.src = `images/img${currentImage}.png`;
+    winImg.src = `${imagePathPrefix}img${currentImage}.png`;
   }
 
   // Buttons
@@ -181,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
     game.classList.add("hidden");
     menu.classList.add("active");
     startBtn.disabled = true;
-    modeBtns.forEach(b => b.classList.remove("active"));
+    modeBtns.forEach((b) => b.classList.remove("active"));
   });
   winMain.addEventListener("click", () => {
     winPopup.classList.add("hidden");

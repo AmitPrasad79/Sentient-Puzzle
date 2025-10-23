@@ -2,40 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sliding Puzzle Game</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Swap Puzzle Game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <section id="menu" class="screen active">
-    <h1>🧩 Sliding Puzzle+</h1>
-    <button class="mode-btn" data-size="3">3×3 (Easy)</button>
-    <button class="mode-btn" data-size="4">4×4 (Medium)</button>
-    <button class="mode-btn" data-size="5">5×5 (Hard)</button>
-    <button id="start-btn" disabled>▶ Start</button>
-  </section>
+  <main id="app">
+    <section id="menu" class="screen active">
+      <h1>🧠 Swap Puzzle+</h1>
+      <div class="mode-row">
+        <button class="mode-btn" data-size="3">3×3</button>
+        <button class="mode-btn" data-size="4">4×4</button>
+        <button class="mode-btn" data-size="5">5×5</button>
+      </div>
+      <button id="start-btn" class="btn primary" disabled>▶ Start</button>
+    </section>
 
-  <section id="countdown" class="screen hidden">
-    <h1 id="count-num">3</h1>
-  </section>
+    <section id="game" class="screen hidden">
+      <div class="controls">
+        <button id="reset-btn" class="btn">🔄 Reset</button>
+        <button id="menu-btn" class="btn">🏠 Menu</button>
+        <span id="moves" class="moves">Moves: 0</span>
+      </div>
+      <div id="puzzle-box" class="puzzle-box">
+        <div id="puzzle" class="puzzle"></div>
+      </div>
+    </section>
 
-  <section id="game" class="screen hidden">
-    <div class="controls">
-      <button id="reset-btn">Reset</button>
-      <button id="menu-btn">Menu</button>
-      <span id="moves">Moves: 0</span>
+    <div id="win" class="popup hidden">
+      <div class="popup-inner">
+        <h2>🎉 You Solved It!</h2>
+        <p id="final-moves"></p>
+        <button id="win-main" class="btn primary">🏠 Menu</button>
+      </div>
     </div>
-    <div class="puzzle-wrapper">
-      <div id="puzzle"></div>
-    </div>
-  </section>
-
-  <div id="win" class="popup hidden">
-    <h2>🎉 You Win!</h2>
-    <p id="final-moves"></p>
-    <button id="win-main">🏠 Menu</button>
-  </div>
-
+  </main>
   <script src="script.js"></script>
 </body>
 </html>

@@ -114,6 +114,8 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
 #footer {
   position: fixed;
   bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 14px;
   text-align: center;
   color: #aaa;
@@ -128,6 +130,8 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
 #footer a:hover {
   text-decoration: underline;
 }
+
+
 
 
 

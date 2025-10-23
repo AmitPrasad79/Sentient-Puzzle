@@ -74,7 +74,7 @@ function startGame() {
 
     const x = i % gridSize;
     const y = Math.floor(i / gridSize);
-    div.style.backgroundImage = `url('images/img${imgIndex}.jpg')`;
+    div.style.backgroundImage = `url('images/img${imgIndex}.png')`;
     div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
     div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
 
@@ -126,3 +126,4 @@ function checkWin() {
     winPopup.classList.remove("hidden");
   }
 }
+

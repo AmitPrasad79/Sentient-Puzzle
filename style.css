@@ -73,3 +73,16 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   .puzzle-box{width:92vw;height:92vw}
   .preview img,.popup-inner img{width:86vw;height:86vw}
 }
+
+.controls-container {
+  border: 2px solid rgba(0,229,255,0.2);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  background: rgba(0, 15, 18, 0.6);
+  box-shadow: 0 0 12px rgba(0,229,255,0.05);
+}
+

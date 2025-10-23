@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Elements
   const menu = document.getElementById("menu");
   const startBtn = document.getElementById("start-btn");
   const modeBtns = document.querySelectorAll(".mode-btn");
@@ -19,11 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const winMain = document.getElementById("win-main");
   const winRestart = document.getElementById("win-restart");
 
-  // State
   let gridSize = 3;
   let tiles = [];
   let moveCount = 0;
-  let selected = null;
+  let selectedTile = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
   const imagePathPrefix = "images/";
@@ -38,12 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Pick random image
+  // Random image pick
   function pickRandomImage() {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
-  // Start button
+  // Start sequence
   startBtn.addEventListener("click", () => {
     pickRandomImage();
     menu.classList.remove("active");
@@ -64,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
         previewBox.classList.remove("hidden");
         previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-        // Show preview 3s then start puzzle
         setTimeout(() => {
           overlay.classList.add("hidden");
           previewBox.classList.add("hidden");
@@ -74,11 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
-  // Create puzzle
+  // Build puzzle
   function startPuzzle() {
     game.classList.add("active");
     puzzle.innerHTML = "";
     moveCount = 0;
+    selectedTile = null;
     updateMoves();
 
     buildTiles();
@@ -89,10 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function buildTiles() {
     tiles = [];
     const total = gridSize * gridSize;
-    puzzle.style.display = "grid";
-    puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-    puzzle.style.gap = "6px";
 
     for (let i = 0; i < total; i++) {
       const div = document.createElement("div");
@@ -105,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
       div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
       div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
 
-      div.addEventListener("click", () => handleTileClick(i));
       tiles.push({ el: div, correctIndex: i });
     }
   }
@@ -118,26 +111,50 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderTiles() {
+    puzzle.style.display = "grid";
+    puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+    puzzle.style.gap = "6px";
     puzzle.innerHTML = "";
-    tiles.forEach((tile) => puzzle.appendChild(tile.el));
+
+    tiles.forEach((tile, index) => {
+      tile.el.classList.remove("selected");
+      tile.el.addEventListener("click", () => onTileClick(index));
+      puzzle.appendChild(tile.el);
+    });
   }
 
-  // Click handling: swap two tiles (not sliding)
-  function handleTileClick(index) {
-    if (selected === null) {
-      selected = index;
-      tiles[selected].el.classList.add("selected");
-    } else if (selected === index) {
-      tiles[selected].el.classList.remove("selected");
-      selected = null;
-    } else {
-      [tiles[selected], tiles[index]] = [tiles[index], tiles[selected]];
-      moveCount++;
-      updateMoves();
-      renderTiles();
-      selected = null;
-      if (checkWin()) showWin();
+  function onTileClick(index) {
+    const clickedTile = tiles[index];
+
+    // No tile selected → select it
+    if (!selectedTile) {
+      selectedTile = clickedTile;
+      clickedTile.el.classList.add("selected");
+      return;
     }
+
+    // Same tile clicked → deselect
+    if (selectedTile === clickedTile) {
+      clickedTile.el.classList.remove("selected");
+      selectedTile = null;
+      return;
+    }
+
+    // Swap both tiles
+    const firstIndex = tiles.indexOf(selectedTile);
+    const secondIndex = index;
+
+    [tiles[firstIndex], tiles[secondIndex]] = [tiles[secondIndex], tiles[firstIndex]];
+    moveCount++;
+    updateMoves();
+
+    selectedTile.el.classList.remove("selected");
+    selectedTile = null;
+
+    renderTiles();
+
+    if (checkWin()) showWin();
   }
 
   function updateMoves() {

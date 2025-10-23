@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🧩 Sentient Puzzle Slide+</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sentient Puzzle Slide+</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main id="app">
-    <!-- Menu -->
     <section id="menu" class="screen active">
-      <h1 class="title">🧠 Sentient Puzzle Slide+</h1>
-      <p>Choose difficulty (one extra blank tile)</p>
+      <h1>🧩 Sentient Puzzle Slide+</h1>
+      <p>Select difficulty</p>
       <div class="mode-row">
         <button class="mode-btn" data-size="3">Easy (3×3)</button>
         <button class="mode-btn" data-size="4">Medium (4×4)</button>
@@ -20,22 +19,34 @@
       <button id="start-btn" class="btn primary" disabled>▶ Start</button>
     </section>
 
-    <!-- Preview -->
-    <section id="overlay" class="screen hidden">
-      <div class="preview-box">
-        <h2>🧩 Preview — Memorize this image!</h2>
-        <img id="preview-img" src="" alt="preview" />
+    <!-- preview + countdown overlay -->
+    <div id="overlay" class="overlay hidden">
+      <div id="preview-box" class="preview-box">
+        <h2 id="preview-text">🧩 Preview — Memorize this image!</h2>
+        <img id="preview-img" src="images/img1.png" alt="preview" />
       </div>
-    </section>
+      <div id="countdown" class="countdown hidden"><span id="count-num">3</span></div>
+    </div>
 
-    <!-- Game -->
+    <!-- game area -->
     <section id="game" class="screen hidden">
-      <div class="controls">
+      <div class="topbar">
         <button id="reset-btn" class="btn">🔄 Reset</button>
         <button id="menu-btn" class="btn">🏠 Menu</button>
       </div>
-      <div id="puzzle" class="puzzle"></div>
+
+      <div id="board-wrap" class="board-wrap">
+        <div id="board" class="board"></div>
+      </div>
     </section>
+
+    <!-- win popup -->
+    <div id="win-popup" class="popup hidden">
+      <div class="popup-inner">
+        <h2>🎉 You Solved It!</h2>
+        <button id="back-btn" class="btn primary">Back to Menu</button>
+      </div>
+    </div>
   </main>
 
   <script src="script.js"></script>

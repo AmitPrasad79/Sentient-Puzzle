@@ -9,7 +9,7 @@ window.addEventListener("resize", resizeBg);
 resizeBg();
 
 const img = new Image();
-img.src = "./assets/sentient.png"; 
+img.src = "./images/sentient.png"; 
 let balls = [];
 
 function createBall() {

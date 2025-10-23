@@ -131,6 +131,16 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   text-decoration: underline;
 }
 
+#game.active {
+  position: relative;
+  z-index: 5; /* ensure puzzle is visible above background/falling elements */
+}
+#overlay.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
 
 
 

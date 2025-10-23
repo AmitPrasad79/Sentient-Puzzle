@@ -1,18 +1,18 @@
 const menu = document.getElementById("menu");
-const countdown = document.getElementById("countdown");
-const countNum = document.getElementById("count-num");
 const game = document.getElementById("game");
 const puzzle = document.getElementById("puzzle");
-const winPopup = document.getElementById("win");
 const startBtn = document.getElementById("start-btn");
 const movesDisplay = document.getElementById("moves");
+const winPopup = document.getElementById("win");
 const finalMoves = document.getElementById("final-moves");
 
 let gridSize = 3;
 let tiles = [];
-let emptyIndex = null;
 let moveCount = 0;
+let selectedTile = null;
+let imgIndex = 1;
 
+// Select difficulty
 document.querySelectorAll(".mode-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
@@ -22,52 +22,53 @@ document.querySelectorAll(".mode-btn").forEach((btn) => {
   });
 });
 
+// Start game
 startBtn.addEventListener("click", () => {
-  menu.classList.add("hidden");
-  countdown.classList.remove("hidden");
-  let count = 3;
-  countNum.textContent = count;
-  const timer = setInterval(() => {
-    count--;
-    if (count > 0) countNum.textContent = count;
-    else {
-      clearInterval(timer);
-      countdown.classList.add("hidden");
-      startGame();
-    }
-  }, 1000);
+  imgIndex = Math.floor(Math.random() * 3) + 1; // random image
+  menu.classList.remove("active");
+  game.classList.remove("hidden");
+  startGame();
+});
+
+// Reset game
+document.getElementById("reset-btn").addEventListener("click", startGame);
+
+// Return to menu
+document.getElementById("menu-btn").addEventListener("click", () => {
+  game.classList.add("hidden");
+  menu.classList.add("active");
+});
+
+document.getElementById("win-main").addEventListener("click", () => {
+  winPopup.classList.add("hidden");
+  game.classList.add("hidden");
+  menu.classList.add("active");
 });
 
 function startGame() {
-  game.classList.remove("hidden");
   puzzle.innerHTML = "";
   moveCount = 0;
   updateMoves();
+  winPopup.classList.add("hidden");
 
-  const total = gridSize * gridSize + 1;
   puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-  puzzle.style.gridTemplateRows = `repeat(${Math.ceil(total / gridSize)}, 1fr)`;
+  puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
+  const totalTiles = gridSize * gridSize;
   tiles = [];
-  const imgIndex = Math.floor(Math.random() * 3) + 1; // images/img1.jpg etc.
 
-  for (let i = 0; i < total; i++) {
+  for (let i = 0; i < totalTiles; i++) {
     const div = document.createElement("div");
     div.classList.add("tile");
 
-    if (i === total - 1) {
-      div.classList.add("empty");
-      emptyIndex = i;
-    } else {
-      div.style.backgroundImage = `url('images/img${imgIndex}.jpg')`;
-      const x = i % gridSize;
-      const y = Math.floor(i / gridSize);
-      div.style.backgroundSize = `${gridSize * 100}% auto`;
-      div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
-      div.addEventListener("click", () => tryMove(i));
-    }
+    const x = i % gridSize;
+    const y = Math.floor(i / gridSize);
+    div.style.backgroundImage = `url('images/img${imgIndex}.jpg')`;
+    div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
+    div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
 
-    tiles.push(div);
+    div.addEventListener("click", () => selectTile(i));
+    tiles.push({ element: div, index: i });
     puzzle.appendChild(div);
   }
 
@@ -75,40 +76,32 @@ function startGame() {
 }
 
 function shuffleTiles() {
-  for (let i = 0; i < 100; i++) {
-    const moves = getMovableTiles();
-    const rand = moves[Math.floor(Math.random() * moves.length)];
-    swapTiles(rand);
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
   }
+  puzzle.innerHTML = "";
+  tiles.forEach(t => puzzle.appendChild(t.element));
 }
 
-function getMovableTiles() {
-  const cols = gridSize;
-  const rows = Math.ceil((gridSize * gridSize + 1) / cols);
-  const row = Math.floor(emptyIndex / cols);
-  const col = emptyIndex % cols;
-  const moves = [];
-  if (row > 0) moves.push(emptyIndex - cols);
-  if (row < rows - 1) moves.push(emptyIndex + cols);
-  if (col > 0) moves.push(emptyIndex - 1);
-  if (col < cols - 1) moves.push(emptyIndex + 1);
-  return moves.filter(i => tiles[i] && !tiles[i].classList.contains("empty"));
-}
-
-function tryMove(i) {
-  if (getMovableTiles().includes(i)) {
-    swapTiles(i);
+function selectTile(i) {
+  if (selectedTile === null) {
+    selectedTile = i;
+    tiles[i].element.style.boxShadow = "0 0 10px #00e5ff";
+  } else {
+    tiles[selectedTile].element.style.boxShadow = "";
+    swapTiles(selectedTile, i);
+    selectedTile = null;
     moveCount++;
     updateMoves();
     checkWin();
   }
 }
 
-function swapTiles(i) {
-  [tiles[i], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[i]];
+function swapTiles(i, j) {
+  [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
   puzzle.innerHTML = "";
-  tiles.forEach(t => puzzle.appendChild(t));
-  emptyIndex = i;
+  tiles.forEach(t => puzzle.appendChild(t.element));
 }
 
 function updateMoves() {
@@ -116,11 +109,8 @@ function updateMoves() {
 }
 
 function checkWin() {
-  let correct = true;
-  for (let i = 0; i < tiles.length - 1; i++) {
-    if (tiles[i].classList.contains("empty")) continue;
-  }
-  if (correct) {
+  const isWin = tiles.every((t, i) => t.index === i);
+  if (isWin) {
     winPopup.classList.remove("hidden");
     finalMoves.textContent = `You solved it in ${moveCount} moves 🎉`;
   }

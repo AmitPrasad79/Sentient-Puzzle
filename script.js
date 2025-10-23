@@ -87,29 +87,32 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTiles();
   }
 
-  function buildTiles() {
-    tiles = [];
-    const total = gridSize * gridSize;
-    puzzle.style.display = "grid";
-    puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-    puzzle.style.gap = "6px";
+function buildTiles() {
+  tiles = [];
+  const total = gridSize * gridSize;
+  puzzle.style.display = "grid";
+  puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+  puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+  puzzle.style.gap = "6px";
 
-    for (let i = 0; i < total; i++) {
-      const div = document.createElement("div");
-      div.classList.add("tile");
-      div.dataset.correct = i;
+  for (let i = 0; i < total; i++) {
+    const div = document.createElement("div");
+    div.classList.add("tile");
+    div.dataset.correct = i;
 
-      const x = i % gridSize;
-      const y = Math.floor(i / gridSize);
-      div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
-      div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
-      div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
+    const x = i % gridSize;
+    const y = Math.floor(i / gridSize);
 
-      div.addEventListener("click", () => handleTileClick(i));
-      tiles.push({ el: div, correctIndex: i });
-    }
+    // ✅ FIX: Use your working background position formula
+    div.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
+    div.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
+    div.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
+
+    div.addEventListener("click", () => handleTileClick(i));
+    tiles.push({ el: div, correctIndex: i });
   }
+}
+
 
   function shuffleTiles() {
     for (let i = tiles.length - 1; i > 0; i--) {
@@ -206,3 +209,4 @@ document.addEventListener("DOMContentLoaded", () => {
     startPuzzle();
   });
 });
+

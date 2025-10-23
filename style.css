@@ -97,19 +97,6 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   margin: auto;
 }
 
-.hidden {
-  display: none !important;
-}
 
-.outer-box {
-  border: 3px solid rgba(0,229,255,0.3);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 0 30px rgba(0,229,255,0.1);
-  background: rgba(0,10,15,0.7);
-  width: 95%;
-  max-width: 800px;
-  margin: auto;
-  position: relative;
-}
+
 

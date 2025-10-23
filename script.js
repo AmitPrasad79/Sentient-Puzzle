@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const IMAGE_COUNT = 18;
 
   // 👇 set this according to your actual folder
-  const imagePathPrefix = "images/"; // "" if in root, "img/" or "images/" if folder
+  const imagePathPrefix = "./images/"; // "" if in root, "img/" or "images/" if folder
 
   modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -186,5 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
     startPuzzle();
   });
 });
+
 
 

@@ -215,14 +215,17 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.classList.add("active");
   });
 
-  winRestart.addEventListener("click", () => {
-    winPopup.classList.add("hidden");
-    // restart with same difficulty, new shuffle
-    moveCount = 0;
-    selectedTile = null;
-    updateMoves();
-    buildTiles();
-    shuffleTiles();
-    renderTiles();
-  });
+ winRestart.addEventListener("click", () => {
+   winPopup.classList.add("hidden");
+   // pick a new random image for replay
+   pickRandomImage();
+   moveCount = 0;
+   selectedTile = null;
+   updateMoves();
+   buildTiles();
+   shuffleTiles();
+   renderTiles();
+ });
+
 });
+

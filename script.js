@@ -42,17 +42,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Start flow: countdown -> preview -> puzzle
 // Start flow: countdown -> preview -> puzzle
+// Start flow: countdown -> preview -> puzzle
 startBtn.addEventListener("click", () => {
   pickRandomImage();
 
-  // show overlay & countdown (start state)
+  // Show overlay + countdown (start state)
   overlay.classList.remove("hidden");
   countdownBox.classList.remove("hidden");
   previewBox.classList.add("hidden");
-  // ensure menu is hidden
   menu.classList.remove("active");
 
-  // start countdown
+  // Start countdown
   let count = 3;
   countNum.textContent = count;
   const timer = setInterval(() => {
@@ -61,25 +61,36 @@ startBtn.addEventListener("click", () => {
       countNum.textContent = count;
     } else {
       clearInterval(timer);
-      // show preview image for 3 seconds
+
+      // Show preview image for 3 seconds
       countdownBox.classList.add("hidden");
       previewBox.classList.remove("hidden");
       previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-      // after preview, prepare puzzle first THEN hide overlay
+      // Wait 3 seconds for preview
       setTimeout(() => {
-        // build puzzle BEFORE removing overlay so the user doesn't see a blank / collapsed area
+        // Build the puzzle FIRST
         buildTiles();
         shuffleTiles();
         renderTiles();
 
-        // ensure game is visible and above background canvas
+        // Ensure grid layout is correct
+        const puzzle = document.getElementById("puzzle");
+        puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+        puzzle.style.display = "grid";
+
+        // Make the game visible and above everything
         game.classList.add("active");
         game.style.zIndex = "5";
 
-        // hide overlay so user can interact
-        overlay.classList.add("hidden");
-        previewBox.classList.add("hidden");
+        // Give the browser one frame to paint puzzle before hiding overlay
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            overlay.classList.add("hidden");
+            previewBox.classList.add("hidden");
+          }, 150);
+        });
       }, 3000);
     }
   }, 1000);
@@ -252,6 +263,7 @@ function startPuzzle() {
  });
 
 });
+
 
 
 

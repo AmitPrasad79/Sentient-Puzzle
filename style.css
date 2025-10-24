@@ -193,6 +193,63 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
 }
 
 
+/* Background canvas stays fixed, always behind everything */
+#bgCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none; /* So clicks go through */
+}
+
+/* Game container sits above background */
+.game-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Overlay sits above puzzle and menu */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10, 10, 10, 0.6);
+  transition: opacity 0.3s ease;
+}
+
+.overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The puzzle box needs to be on top of background but below overlay */
+#puzzle-box {
+  position: relative;
+  z-index: 2;
+}
+
+/* Footer on top of canvas but under overlay */
+#footer {
+  position: fixed;
+  bottom: 15px;
+  font-size: 14px;
+  text-align: center;
+  color: #aaa;
+  z-index: 2;
+}
+
 
 
 

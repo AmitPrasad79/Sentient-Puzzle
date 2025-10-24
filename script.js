@@ -67,32 +67,33 @@ document.addEventListener("DOMContentLoaded", () => {
         previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
         // Wait 3 seconds for preview
+        // Wait 3 seconds for preview
         setTimeout(() => {
-          // ✅ Build the puzzle FIRST
-          buildTiles();
-          shuffleTiles();
-          renderTiles();
+          // Start fade-out for overlay and preview together
+          overlay.classList.add("fade-out");
+          previewBox.classList.add("fade-out");
 
-          // ✅ Ensure grid layout is ready before showing
-          puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-          puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-          puzzle.style.display = "grid";
+        // Wait for fade animation (0.5s)
+        setTimeout(() => {
+         // Hide overlay and preview fully
+         overlay.classList.add("hidden");
+         previewBox.classList.add("hidden");
+         overlay.classList.remove("fade-out");
+         previewBox.classList.remove("fade-out");
 
-          // ✅ Bring puzzle up front and ensure repaint
-          game.classList.add("active");
-          game.style.zIndex = "5";
+       // ✅ Now build puzzle cleanly after fade
+         buildTiles();
+         shuffleTiles();
+         renderTiles();
 
-          // ✅ Force a browser repaint (fix Chrome bug)
-          puzzle.offsetHeight;
+         puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+         puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+         puzzle.style.display = "grid";
 
-          // ✅ Wait one frame before hiding overlay
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              overlay.classList.add("hidden");
-              previewBox.classList.add("hidden");
-            }, 300);
-          });
-        }, 3000);
+         game.classList.add("active");
+         game.style.zIndex = "5";
+          }, 500);
+       }, 3000);
       }
     }, 1000);
   });
@@ -252,4 +253,5 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTiles();
   });
 });
+
 

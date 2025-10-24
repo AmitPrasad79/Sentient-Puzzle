@@ -148,9 +148,9 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: 0;              /* was -1 — this can cause repaint bugs in Chrome */
   background: radial-gradient(circle at center, #0a0013 20%, #000 100%);
-  pointer-events: none; /* <- important so it never blocks clicks */
+  pointer-events: none;    /* ensures it never blocks clicks */
 }
 
 /* Make sure puzzle grid always gets space and tiles fill cells */
@@ -186,6 +186,7 @@ main{width:94%;max-width:720px;margin:auto;text-align:center;position:relative;p
   position: relative;
   z-index: 5;
 }
+
 
 
 

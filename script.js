@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => {
               overlay.classList.add("hidden");
               previewBox.classList.add("hidden");
-            }, 200);
+            }, 300);
           });
         }, 3000);
       }
@@ -252,3 +252,4 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTiles();
   });
 });
+

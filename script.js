@@ -85,11 +85,12 @@ startBtn.addEventListener("click", () => {
         game.style.zIndex = "5";
 
         // Give the browser one frame to paint puzzle before hiding overlay
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            overlay.classList.add("hidden");
-            previewBox.classList.add("hidden");
-          }, 150);
+        setTimeout(() => {
+        overlay.classList.add("hidden");
+        previewBox.classList.add("hidden");
+        game.classList.add("active");
+        game.style.zIndex = "5";
+        }, 300);
         });
       }, 3000);
     }
@@ -263,6 +264,7 @@ function startPuzzle() {
  });
 
 });
+
 
 
 

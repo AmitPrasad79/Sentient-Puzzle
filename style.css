@@ -301,8 +301,11 @@ main {
   z-index: 5;
 }
 
-#previewBox.fade-out {
+.overlay.fade-out,
+.preview.fade-out {
   opacity: 0;
   transition: opacity 0.5s ease;
 }
+
+
 

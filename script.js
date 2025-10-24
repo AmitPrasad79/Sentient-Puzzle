@@ -19,14 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const winRestart = document.getElementById("win-restart");
 
   let gridSize = 3;
-  let tiles = [];               // array of { el, correctIndex }
+  let tiles = [];
   let moveCount = 0;
-  let selectedTile = null;      // reference to tile object (not DOM)
+  let selectedTile = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
-  const imagePathPrefix = "images/"; // adjust to "./images/" if needed
+  const imagePathPrefix = "./images/"; // ✅ ensure correct relative path
 
+  // ---------------------------
   // Difficulty buttons
+  // ---------------------------
   modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       modeBtns.forEach((b) => b.classList.remove("active"));
@@ -40,84 +42,82 @@ document.addEventListener("DOMContentLoaded", () => {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
-  // Start flow: countdown -> preview -> puzzle
-// Start flow: countdown -> preview -> puzzle
-// Start flow: countdown -> preview -> puzzle
-startBtn.addEventListener("click", () => {
-  pickRandomImage();
+  // ---------------------------
+  // Start flow: countdown → preview → puzzle
+  // ---------------------------
+  startBtn.addEventListener("click", () => {
+    pickRandomImage();
 
-  // Show overlay + countdown (start state)
-  overlay.classList.remove("hidden");
-  countdownBox.classList.remove("hidden");
-  previewBox.classList.add("hidden");
-  menu.classList.remove("active");
+    overlay.classList.remove("hidden");
+    countdownBox.classList.remove("hidden");
+    previewBox.classList.add("hidden");
+    menu.classList.remove("active");
 
-  // Start countdown
-  let count = 3;
-  countNum.textContent = count;
-  const timer = setInterval(() => {
-    count--;
-    if (count > 0) {
-      countNum.textContent = count;
-    } else {
-      clearInterval(timer);
+    let count = 3;
+    countNum.textContent = count;
+    const timer = setInterval(() => {
+      count--;
+      if (count > 0) {
+        countNum.textContent = count;
+      } else {
+        clearInterval(timer);
 
-      // Show preview image for 3 seconds
-      countdownBox.classList.add("hidden");
-      previewBox.classList.remove("hidden");
-      previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
+        countdownBox.classList.add("hidden");
+        previewBox.classList.remove("hidden");
+        previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-      // Wait 3 seconds for preview
-      setTimeout(() => {
-        // Build the puzzle FIRST
-        buildTiles();
-        shuffleTiles();
-        renderTiles();
-
-        // Ensure grid layout is correct
-        const puzzle = document.getElementById("puzzle");
-        puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-        puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-        puzzle.style.display = "grid";
-
-        // Make the game visible and above everything
-        game.classList.add("active");
-        game.style.zIndex = "5";
-
-        // Give the browser one frame to paint puzzle before hiding overlay
-        requestAnimationFrame(() => {
+        // Wait 3 seconds for preview
         setTimeout(() => {
-        overlay.classList.add("hidden");
-        previewBox.classList.add("hidden");
-        }, 150);
-       });
-      });
-      }, 3000);
-    }
-  }, 1000);
-});
+          // ✅ Build the puzzle FIRST
+          buildTiles();
+          shuffleTiles();
+          renderTiles();
 
-function startPuzzle() {
-  // KEEP for keyboard/reset usage - also re-build safely
-  // bring the game forward
-  game.classList.add("active");
-  game.style.zIndex = "5";
-  overlay.classList.add("hidden");
-  previewBox.classList.add("hidden");
+          // ✅ Ensure grid layout is ready before showing
+          puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+          puzzle.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+          puzzle.style.display = "grid";
 
-  // reset move/selection state
-  moveCount = 0;
-  selectedTile = null;
-  updateMoves();
+          // ✅ Bring puzzle up front and ensure repaint
+          game.classList.add("active");
+          game.style.zIndex = "5";
 
-  // build + shuffle + render
-  buildTiles();
-  shuffleTiles();
-  renderTiles();
-}
+          // ✅ Force a browser repaint (fix Chrome bug)
+          puzzle.offsetHeight;
 
+          // ✅ Wait one frame before hiding overlay
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              overlay.classList.add("hidden");
+              previewBox.classList.add("hidden");
+            }, 200);
+          });
+        }, 3000);
+      }
+    }, 1000);
+  });
 
-  // Build tiles in correct order (correctIndex = target position)
+  // ---------------------------
+  // Reusable puzzle start (for restart)
+  // ---------------------------
+  function startPuzzle() {
+    game.classList.add("active");
+    game.style.zIndex = "5";
+    overlay.classList.add("hidden");
+    previewBox.classList.add("hidden");
+
+    moveCount = 0;
+    selectedTile = null;
+    updateMoves();
+
+    buildTiles();
+    shuffleTiles();
+    renderTiles();
+  }
+
+  // ---------------------------
+  // Tile generation
+  // ---------------------------
   function buildTiles() {
     tiles = [];
     const total = gridSize * gridSize;
@@ -129,12 +129,13 @@ function startPuzzle() {
       el.style.backgroundImage = `url('${imagePathPrefix}img${currentImage}.png')`;
       el.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
       el.style.backgroundPosition = `${(x / (gridSize - 1)) * 100}% ${(y / (gridSize - 1)) * 100}%`;
-      // Keep the original/correct index on the object
       tiles.push({ el, correctIndex: i });
     }
   }
 
-  // Fisher-Yates
+  // ---------------------------
+  // Shuffle (Fisher–Yates)
+  // ---------------------------
   function shuffleTiles() {
     for (let i = tiles.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -142,7 +143,9 @@ function startPuzzle() {
     }
   }
 
-  // Render: always reset event handlers using el.onclick (no duplicates)
+  // ---------------------------
+  // Render puzzle
+  // ---------------------------
   function renderTiles() {
     puzzle.style.display = "grid";
     puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -153,70 +156,57 @@ function startPuzzle() {
     tiles.forEach((tileObj, index) => {
       const el = tileObj.el;
       el.classList.remove("selected");
-      // Important: overwrite any previous click handler (prevents stacking)
       el.onclick = () => onTileClicked(index);
       puzzle.appendChild(el);
     });
   }
 
-  // Click handler (swap mode): click one tile, then another -> swap them
+  // ---------------------------
+  // Tile click handler
+  // ---------------------------
   function onTileClicked(index) {
     const clicked = tiles[index];
     if (!clicked) return;
 
-    // If nothing selected: select this tile
     if (selectedTile === null) {
       selectedTile = clicked;
       clicked.el.classList.add("selected");
       return;
     }
 
-    // If same tile clicked again -> deselect
     if (selectedTile === clicked) {
       selectedTile.el.classList.remove("selected");
       selectedTile = null;
       return;
     }
 
-    // Swap two tile objects inside tiles array
     const firstIndex = tiles.indexOf(selectedTile);
     const secondIndex = index;
 
     if (firstIndex === -1 || secondIndex === -1) {
-      // safety
       selectedTile.el.classList.remove("selected");
       selectedTile = null;
       return;
     }
 
-    // perform swap
     [tiles[firstIndex], tiles[secondIndex]] = [tiles[secondIndex], tiles[firstIndex]];
 
-    // one atomic move
-    moveCount += 1;
+    moveCount++;
     updateMoves();
 
-    // clear selection and re-render once (so only single handler runs)
     selectedTile.el.classList.remove("selected");
     selectedTile = null;
     renderTiles();
 
-    // check win
-    if (checkWin()) {
-      showWin();
-    }
+    if (checkWin()) showWin();
   }
 
   function updateMoves() {
     movesDisplay.textContent = `Moves: ${moveCount}`;
   }
 
-  // Win check: every tile object's correctIndex must equal its current slot index
   function checkWin() {
-    for (let i = 0; i < tiles.length; i++) {
-      if (tiles[i].correctIndex !== i) return false;
-    }
-    return true;
+    return tiles.every((tile, i) => tile.correctIndex === i);
   }
 
   function showWin() {
@@ -225,9 +215,10 @@ function startPuzzle() {
     winImg.src = `${imagePathPrefix}img${currentImage}.png`;
   }
 
-  // Buttons
+  // ---------------------------
+  // Button handlers
+  // ---------------------------
   resetBtn.addEventListener("click", () => {
-    // reshuffle and reset moves
     moveCount = 0;
     selectedTile = null;
     updateMoves();
@@ -237,7 +228,6 @@ function startPuzzle() {
   });
 
   menuBtn.addEventListener("click", () => {
-    // hide game, show menu, reset selection
     game.classList.remove("active");
     menu.classList.add("active");
     selectedTile = null;
@@ -251,23 +241,14 @@ function startPuzzle() {
     menu.classList.add("active");
   });
 
- winRestart.addEventListener("click", () => {
-   winPopup.classList.add("hidden");
-   // pick a new random image for replay
-   pickRandomImage();
-   moveCount = 0;
-   selectedTile = null;
-   updateMoves();
-   buildTiles();
-   shuffleTiles();
-   renderTiles();
- });
-
+  winRestart.addEventListener("click", () => {
+    winPopup.classList.add("hidden");
+    pickRandomImage();
+    moveCount = 0;
+    selectedTile = null;
+    updateMoves();
+    buildTiles();
+    shuffleTiles();
+    renderTiles();
+  });
 });
-
-
-
-
-
-
-

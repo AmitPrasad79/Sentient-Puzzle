@@ -1,4 +1,3 @@
-/* Sentient Puzzle Slide+ Styles */
 * {
   box-sizing: border-box;
 }
@@ -15,7 +14,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Main Layout */
 main {
   width: 94%;
   max-width: 720px;
@@ -25,7 +23,6 @@ main {
   padding: 18px;
 }
 
-/* Screens */
 .screen {
   display: none;
 }
@@ -33,7 +30,6 @@ main {
   display: block;
 }
 
-/* Title + Hint */
 .title {
   font-size: 1.9rem;
   color: #00e5ff;
@@ -45,7 +41,6 @@ main {
   margin-bottom: 12px;
 }
 
-/* Buttons */
 .btn,
 .mode-btn {
   background: #071a1d;
@@ -71,7 +66,6 @@ main {
   margin-top: 12px;
 }
 
-/* Overlay (Preview + Countdown) */
 .overlay {
   position: absolute;
   inset: 0;
@@ -118,7 +112,6 @@ main {
   justify-content: center;
 }
 
-/* Controls */
 .controls {
   display: flex;
   justify-content: space-between;
@@ -136,7 +129,6 @@ main {
   color: #ffd479;
 }
 
-/* Puzzle Area */
 .puzzle-wrapper {
   display: flex;
   justify-content: center;
@@ -179,7 +171,6 @@ main {
   transform: scale(1.02);
 }
 
-/* Win Popup */
 .popup {
   position: fixed;
   inset: 0;
@@ -208,7 +199,6 @@ main {
   border: 2px solid rgba(0, 229, 255, 0.06);
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .puzzle-box {
     width: 92vw;
@@ -221,7 +211,6 @@ main {
   }
 }
 
-/* Control Container Box */
 .controls-container {
   border: 2px solid rgba(0, 229, 255, 0.2);
   border-radius: 12px;
@@ -234,8 +223,6 @@ main {
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.05);
 }
 
-/* Outer Game Container */
-/* Outer Game Container - Compact and Centered */
 .game-container {
   border: 3px solid rgba(0, 229, 255, 0.25);
   border-radius: 16px;
@@ -245,7 +232,7 @@ main {
   padding: 20px 24px 28px;
   max-width: 800px;
   width: fit-content;
-  margin: 50px auto;       /* adds breathing space top/bottom */
+  margin: 50px auto;       
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -255,7 +242,6 @@ main {
   z-index: 5;
 }
 
-/* Adjust for smaller screens */
 @media (max-width: 640px) {
   .game-container {
     width: 94%;
@@ -264,7 +250,6 @@ main {
   }
 }
 
-/* Background Canvas - Always Behind */
 #bgCanvas {
   position: fixed;
   top: 0;
@@ -276,7 +261,6 @@ main {
   background: radial-gradient(circle at center, #0a0013 20%, #000 100%);
 }
 
-/* Footer */
 #footer {
   position: fixed;
   bottom: 15px;
@@ -295,11 +279,11 @@ main {
   text-decoration: underline;
 }
 
-/* Active Game Layer */
 #game.active {
   position: relative;
   z-index: 5;
 }
+
 
 
 

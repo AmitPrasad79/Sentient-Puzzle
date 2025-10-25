@@ -24,11 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedTile = null;
   let currentImage = 1;
   const IMAGE_COUNT = 18;
-  const imagePathPrefix = "./images/"; // ✅ ensure correct relative path
+  const imagePathPrefix = "./images/"; 
 
-  // ---------------------------
-  // Difficulty buttons
-  // ---------------------------
   modeBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       modeBtns.forEach((b) => b.classList.remove("active"));
@@ -42,9 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     currentImage = Math.floor(Math.random() * IMAGE_COUNT) + 1;
   }
 
-  // ---------------------------
-  // Start flow: countdown → preview → puzzle
-  // ---------------------------
   startBtn.addEventListener("click", () => {
     pickRandomImage();
 
@@ -66,22 +60,16 @@ document.addEventListener("DOMContentLoaded", () => {
         previewBox.classList.remove("hidden");
         previewImg.src = `${imagePathPrefix}img${currentImage}.png`;
 
-        // Wait 3 seconds for preview
-        // Wait 3 seconds for preview
         setTimeout(() => {
-          // Start fade-out for overlay and preview together
           overlay.classList.add("fade-out");
           previewBox.classList.add("fade-out");
 
-        // Wait for fade animation (0.5s)
         setTimeout(() => {
-         // Hide overlay and preview fully
          overlay.classList.add("hidden");
          previewBox.classList.add("hidden");
          overlay.classList.remove("fade-out");
          previewBox.classList.remove("fade-out");
 
-       // ✅ Now build puzzle cleanly after fade
          buildTiles();
          shuffleTiles();
          renderTiles();
@@ -98,9 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   });
 
-  // ---------------------------
-  // Reusable puzzle start (for restart)
-  // ---------------------------
   function startPuzzle() {
     game.classList.add("active");
     game.style.zIndex = "5";
@@ -116,9 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTiles();
   }
 
-  // ---------------------------
-  // Tile generation
-  // ---------------------------
   function buildTiles() {
     tiles = [];
     const total = gridSize * gridSize;
@@ -134,9 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------------------------
-  // Shuffle (Fisher–Yates)
-  // ---------------------------
   function shuffleTiles() {
     for (let i = tiles.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -144,9 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------------------------
-  // Render puzzle
-  // ---------------------------
   function renderTiles() {
     puzzle.style.display = "grid";
     puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -162,9 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------------------------
-  // Tile click handler
-  // ---------------------------
   function onTileClicked(index) {
     const clicked = tiles[index];
     if (!clicked) return;
@@ -216,9 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
     winImg.src = `${imagePathPrefix}img${currentImage}.png`;
   }
 
-  // ---------------------------
-  // Button handlers
-  // ---------------------------
   resetBtn.addEventListener("click", () => {
     moveCount = 0;
     selectedTile = null;
@@ -253,5 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderTiles();
   });
 });
+
 
 
